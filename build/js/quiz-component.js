@@ -66,8 +66,8 @@ var Answer = React.createClass({displayName: "Answer",
     return (
       React.createElement("div", {className: "answer list-group-item"}, 
         React.createElement("li", null, 
-          React.createElement("input", {type: "checkbox", name: "answer", value: ""}), 
-          this.props.text
+          this.props.text, 
+          React.createElement("input", {className: "pull-right", type: "checkbox", name: "answer", value: ""})
         )
       )
     );
@@ -83,11 +83,10 @@ var AnswerList = React.createClass({displayName: "AnswerList",
     });
 
     return (
-        React.createElement("div", {className: "answerlist"}, 
-          React.createElement("ul", {className: "list-group"}, 
+
+          React.createElement("ul", {className: "list-group list-unstyled"}, 
             answerNodes
           )
-        )
     );
   }
 });
@@ -95,9 +94,13 @@ var AnswerList = React.createClass({displayName: "AnswerList",
 var Question = React.createClass({displayName: "Question",
   render: function () {
     return (
-      React.createElement("div", {className: "question"}, 
-        React.createElement("h4", null, " ", this.props.text, " ", React.createElement("span", null, " ( ",  this.props.points, " points ) "), " "), 
-        React.createElement(AnswerList, {list:  this.props.answers})
+      React.createElement("div", {className: "row"}, 
+        React.createElement("div", {className: "col-md-4"}, 
+          React.createElement("div", {className: "question panel panel-default"}, 
+            React.createElement("div", {className: "panel-body"}, " ", this.props.text, " ", React.createElement("span", {className: "pull-right"}, " ( ",  this.props.points, " points ) "), " "), 
+            React.createElement(AnswerList, {list:  this.props.answers})
+          )
+        )
       )
     );
   }

@@ -66,8 +66,8 @@ var Answer = React.createClass({
     return (
       <div className = "answer list-group-item">
         <li>
-          <input type = "checkbox" name = "answer" value = ""/>
           {this.props.text}
+          <input className = "pull-right" type = "checkbox" name = "answer" value = ""/>
         </li>
       </div>
     );
@@ -83,11 +83,10 @@ var AnswerList = React.createClass({
     });
 
     return (
-        <div className = "answerlist" >
-          <ul className = "list-group">
+
+          <ul className = "list-group list-unstyled">
             {answerNodes}
           </ul>
-        </div>
     );
   }
 });
@@ -95,9 +94,13 @@ var AnswerList = React.createClass({
 var Question = React.createClass({
   render: function () {
     return (
-      <div className = "question">
-        <h4> {this.props.text} <span> ( { this.props.points } points ) </span> </h4>
-        <AnswerList list = { this.props.answers } />
+      <div className = "row">
+        <div className = "col-md-4">
+          <div className = "question panel panel-default">
+            <div className = "panel-body"> {this.props.text} <span className = "pull-right"> ( { this.props.points } points ) </span> </div>
+            <AnswerList list = { this.props.answers } />
+          </div>
+        </div>
       </div>
     );
   }
