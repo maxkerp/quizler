@@ -44,7 +44,7 @@ var SectionList = React.createClass({displayName: "SectionList",
 var Section = React.createClass({displayName: "Section",
   clickHandler: function () {
     console.log( this.props.title + " button evaluate clicked")
-    React.findDOMNode(this.refs.button).value = 'Next';
+    console.log( this.props.questions );
   },
   render: function () {
     questionNodes = this.props.questions.map( function ( question ) {
@@ -77,21 +77,41 @@ var Section = React.createClass({displayName: "Section",
 });
 
 var Answer = React.createClass({displayName: "Answer",
+  getInitialState: function () {
+    return {
+      correct: false
+    }
+  },
+  getClassName: function () {
+    var colorClass = "",
+        checked;
+
+
+    return "answer list-group-item" + colorClass;
+  },
   render: function () {
     return (
       React.createElement("div", {className: "answer list-group-item"}, 
         React.createElement("li", null, 
           this.props.text, 
-          React.createElement("input", {className: "pull-right", type: "checkbox", name: "answer", value: ""})
+          React.createElement("input", {ref: "checked", className: "pull-right", type: "checkbox", name: "answer", value: ""})
         )
       )
     );
   }
 });
 
-var AnswerList = React.createClass({displayName: "AnswerList",
+
+var Question = React.createClass({displayName: "Question",
+  points: 0,
+  getAnswers: function () {
+    React.Children.map( this.props.children, function (child) {
+      console.log(child);
+    });
+  },
+
   render: function () {
-    var answerNodes = this.props.list.map( function ( answer ) {
+    var answerNodes = this.props.answers.map( function ( answer ) {
       return (
         React.createElement(Answer, {text:  answer.text, isCorrect:  answer.isCorrect})
       )
@@ -99,20 +119,12 @@ var AnswerList = React.createClass({displayName: "AnswerList",
 
     return (
 
-          React.createElement("ul", {className: "list-group list-unstyled"}, 
-            answerNodes
-          )
-    );
-  }
-});
-
-var Question = React.createClass({displayName: "Question",
-  render: function () {
-    return (
-
           React.createElement("div", {className: "question panel panel-default"}, 
-            React.createElement("div", {className: "panel-body"}, " ", this.props.text, " ", React.createElement("span", {className: "pull-right"}, " ( ",  this.props.points, " points ) "), " "), 
-            React.createElement(AnswerList, {list:  this.props.answers})
+            React.createElement("div", {className: "panel-body"}, " ", this.props.text, " ", React.createElement("span", {className: "pull-right"}, " ( ",  this.points, " / ",  this.props.points, " points ) ")
+            ), 
+            React.createElement("ul", {className: "list-group list-unstyled"}, 
+              answerNodes
+            )
           )
 
     );

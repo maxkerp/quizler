@@ -44,7 +44,7 @@ var SectionList = React.createClass({
 var Section = React.createClass({
   clickHandler: function () {
     console.log( this.props.title + " button evaluate clicked")
-    React.findDOMNode(this.refs.button).value = 'Next';
+    console.log( this.props.questions );
   },
   render: function () {
     questionNodes = this.props.questions.map( function ( question ) {
@@ -77,21 +77,41 @@ var Section = React.createClass({
 });
 
 var Answer = React.createClass({
+  getInitialState: function () {
+    return {
+      correct: false
+    }
+  },
+  getClassName: function () {
+    var colorClass = "",
+        checked;
+
+
+    return "answer list-group-item" + colorClass;
+  },
   render: function () {
     return (
       <div className = "answer list-group-item">
         <li>
           {this.props.text}
-          <input className = "pull-right" type = "checkbox" name = "answer" value = ""/>
+          <input ref = "checked" className = "pull-right" type = "checkbox" name = "answer" value = ""/>
         </li>
       </div>
     );
   }
 });
 
-var AnswerList = React.createClass({
+
+var Question = React.createClass({
+  points: 0,
+  getAnswers: function () {
+    React.Children.map( this.props.children, function (child) {
+      console.log(child);
+    });
+  },
+
   render: function () {
-    var answerNodes = this.props.list.map( function ( answer ) {
+    var answerNodes = this.props.answers.map( function ( answer ) {
       return (
         <Answer text = { answer.text } isCorrect = { answer.isCorrect } />
       )
@@ -99,20 +119,12 @@ var AnswerList = React.createClass({
 
     return (
 
-          <ul className = "list-group list-unstyled">
-            {answerNodes}
-          </ul>
-    );
-  }
-});
-
-var Question = React.createClass({
-  render: function () {
-    return (
-
           <div className = "question panel panel-default">
-            <div className = "panel-body"> {this.props.text} <span className = "pull-right"> ( { this.props.points } points ) </span> </div>
-            <AnswerList list = { this.props.answers } />
+            <div className = "panel-body"> {this.props.text} <span className = "pull-right"> ( { this.points} / { this.props.points } points ) </span>
+            </div>
+            <ul className = "list-group list-unstyled">
+              {answerNodes}
+            </ul>
           </div>
 
     );
