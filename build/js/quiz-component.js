@@ -42,6 +42,10 @@ var SectionList = React.createClass({displayName: "SectionList",
 });
 
 var Section = React.createClass({displayName: "Section",
+  clickHandler: function () {
+    console.log( this.props.title + " button evaluate clicked")
+    React.findDOMNode(this.refs.button).value = 'Next';
+  },
   render: function () {
     questionNodes = this.props.questions.map( function ( question ) {
       return (
@@ -51,11 +55,22 @@ var Section = React.createClass({displayName: "Section",
     });
 
     return (
-      React.createElement("div", {className: "section"}, 
-        React.createElement("span", null, " ", React.createElement("h4", null, " ",  this.props.number, " ",  this.props.title, " "), " "), 
-        React.createElement("p", null, " ",  this.props.description, " "), 
-        React.createElement("hr", null), 
-         questionNodes 
+      React.createElement("div", {className: "row"}, 
+        React.createElement("div", {className: "col-md-6 col-md-offset-3"}, 
+          React.createElement("div", {className: "section panel panel-default"}, 
+            React.createElement("div", {className: "panel-heading"}, " ",  this.props.number, " ",  this.props.title, " "), 
+            React.createElement("div", {className: "panel-body"}, 
+            React.createElement("p", null, " ",  this.props.description, " "), 
+            React.createElement("hr", null), 
+             questionNodes 
+            ), 
+            React.createElement("div", {className: "panel-footer"}, 
+              React.createElement("button", {ref: "button", className: " btn btn-success pull-right", type: "button", onClick:  this.clickHandler}, "Done"), 
+              /* div.clearfix is needed since the button won"t show up properly if ommited */
+              React.createElement("div", {className: " clearfix"})
+            )
+          )
+        )
       )
     );
   }
@@ -94,14 +109,12 @@ var AnswerList = React.createClass({displayName: "AnswerList",
 var Question = React.createClass({displayName: "Question",
   render: function () {
     return (
-      React.createElement("div", {className: "row"}, 
-        React.createElement("div", {className: "col-md-4"}, 
+
           React.createElement("div", {className: "question panel panel-default"}, 
             React.createElement("div", {className: "panel-body"}, " ", this.props.text, " ", React.createElement("span", {className: "pull-right"}, " ( ",  this.props.points, " points ) "), " "), 
             React.createElement(AnswerList, {list:  this.props.answers})
           )
-        )
-      )
+
     );
   }
 });

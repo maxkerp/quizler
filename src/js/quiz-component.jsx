@@ -42,6 +42,10 @@ var SectionList = React.createClass({
 });
 
 var Section = React.createClass({
+  clickHandler: function () {
+    console.log( this.props.title + " button evaluate clicked")
+    React.findDOMNode(this.refs.button).value = 'Next';
+  },
   render: function () {
     questionNodes = this.props.questions.map( function ( question ) {
       return (
@@ -51,11 +55,22 @@ var Section = React.createClass({
     });
 
     return (
-      <div className = "section">
-        <span> <h4> { this.props.number } { this.props.title } </h4> </span>
-        <p> { this.props.description } </p>
-        <hr/>
-        { questionNodes }
+      <div className = "row">
+        <div className = "col-md-6 col-md-offset-3">
+          <div className = "section panel panel-default">
+            <div className = "panel-heading"> { this.props.number } { this.props.title } </div>
+            <div className = "panel-body">
+            <p> { this.props.description } </p>
+            <hr/>
+            { questionNodes }
+            </div>
+            <div className = "panel-footer">
+              <button ref = "button" className = " btn btn-success pull-right" type = "button" onClick = { this.clickHandler }>Done</button>
+              {/* div.clearfix is needed since the button won"t show up properly if ommited */}
+              <div className = " clearfix"></div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -94,14 +109,12 @@ var AnswerList = React.createClass({
 var Question = React.createClass({
   render: function () {
     return (
-      <div className = "row">
-        <div className = "col-md-4">
+
           <div className = "question panel panel-default">
             <div className = "panel-body"> {this.props.text} <span className = "pull-right"> ( { this.props.points } points ) </span> </div>
             <AnswerList list = { this.props.answers } />
           </div>
-        </div>
-      </div>
+
     );
   }
 });
