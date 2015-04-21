@@ -26,25 +26,48 @@ var Quiz = React.createClass({
 });
 
 var SectionList = React.createClass({
+  onNext: function () {
+    if ( this.state.index === this.props.sections.length - 1 ) {
+      console.log( "End of sections reached..." );
+      return;
+    } else {
+      this.setState({ index: this.state.index + 1 });
+      console.log( "Section index at: " + this.state.index);
+    }
+
+  },
+  getInitialState: function () {
+    return {
+      index: 0
+    };
+  },
   render: function () {
-    sectionNodes = this.props.sections.map( function ( section ) {
-      return (
-        <Section title = { section.title } description = { section.description }
-                number = { section.number } questions = { section.questions } />
-      );
-    });
+    var index = this.state.index,
+        section = this.props.sections[index];
+
+
+
     return (
       <div className = "sectionlist">
-        { sectionNodes }
+        <Section title = { section.title } description = { section.description }
+                number = { section.number } questions = { section.questions }
+                onNext = { this.onNext } />
       </div>
     );
   }
 });
 
 var Section = React.createClass({
-  clickHandler: function () {
-    console.log( this.props.title + " button evaluate clicked")
-    console.log( this.props.questions );
+  getInitalState: function () {
+    return {
+      done: false
+    };
+  }
+  clickDone: function () {
+    console.log( this.props.title + " button done clicked")
+    // console.log( this.props.questions );
+    //this.props.onNext();
+
   },
   render: function () {
     questionNodes = this.props.questions.map( function ( question ) {
@@ -65,7 +88,7 @@ var Section = React.createClass({
             { questionNodes }
             </div>
             <div className = "panel-footer">
-              <button ref = "button" className = " btn btn-success pull-right" type = "button" onClick = { this.clickHandler }>Done</button>
+              <button ref = "button" className = " btn btn-success pull-right" type = "button" onClick = { this.clickDone }>Done</button>
               {/* div.clearfix is needed since the button won"t show up properly if ommited */}
               <div className = " clearfix"></div>
             </div>

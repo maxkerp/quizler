@@ -26,25 +26,42 @@ var Quiz = React.createClass({displayName: "Quiz",
 });
 
 var SectionList = React.createClass({displayName: "SectionList",
+  onNext: function () {
+    if ( this.state.index === this.props.sections.length - 1 ) {
+      console.log( "End of sections reached..." );
+      return;
+    } else {
+      this.setState({ index: this.state.index + 1 });
+      console.log( "Section index at: " + this.state.index);
+    }
+
+  },
+  getInitialState: function () {
+    return {
+      index: 0
+    };
+  },
   render: function () {
-    sectionNodes = this.props.sections.map( function ( section ) {
-      return (
-        React.createElement(Section, {title:  section.title, description:  section.description, 
-                number:  section.number, questions:  section.questions})
-      );
-    });
+    var index = this.state.index,
+        section = this.props.sections[index];
+
+
+
     return (
       React.createElement("div", {className: "sectionlist"}, 
-         sectionNodes 
+        React.createElement(Section, {title:  section.title, description:  section.description, 
+                number:  section.number, questions:  section.questions, 
+                onNext:  this.onNext})
       )
     );
   }
 });
 
 var Section = React.createClass({displayName: "Section",
-  clickHandler: function () {
-    console.log( this.props.title + " button evaluate clicked")
-    console.log( this.props.questions );
+  clickDone: function () {
+    console.log( this.props.title + " button done clicked")
+    // console.log( this.props.questions );
+    this.props.onNext();
   },
   render: function () {
     questionNodes = this.props.questions.map( function ( question ) {
@@ -65,7 +82,7 @@ var Section = React.createClass({displayName: "Section",
              questionNodes 
             ), 
             React.createElement("div", {className: "panel-footer"}, 
-              React.createElement("button", {ref: "button", className: " btn btn-success pull-right", type: "button", onClick:  this.clickHandler}, "Done"), 
+              React.createElement("button", {ref: "button", className: " btn btn-success pull-right", type: "button", onClick:  this.clickDone}, "Done"), 
               /* div.clearfix is needed since the button won"t show up properly if ommited */
               React.createElement("div", {className: " clearfix"})
             )
