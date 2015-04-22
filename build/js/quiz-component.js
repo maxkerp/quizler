@@ -5,30 +5,100 @@ var QuizBox = React.createClass({displayName: "QuizBox",
   render: function () {
     return (
       React.createElement("div", {className: "quizbox"}, 
-        React.createElement(Quiz, {title:  QUIZDATA.title, author:  QUIZDATA.author, 
-              date:  QUIZDATA.date, description:  QUIZDATA.description})
+        React.createElement(Quiz, {src:  QUIZDATA })
+      )
+    );
+  }
+});
+
+// This is a stateless component which just renders data from its parent
+var QuizDescription = React.createClass({displayName: "QuizDescription",
+
+  render: function () {
+    return (
+      React.createElement("div", {className: "row"}, 
+        React.createElement("div", {className: "col-md-6 col-md-offset-3"}, 
+          React.createElement("div", {className: "panel panel-default"}, 
+            React.createElement("div", {className: "panel-heading"}, 
+              React.createElement("p", null, this.props.title), 
+              React.createElement("small", null, " Released by ", this.props.author, ", on ", this.props.date, " ")
+            ), 
+            React.createElement("div", {className: "panel-body"}, 
+              this.props.description
+            ), 
+            React.createElement("div", {className: "panel-footer"}, 
+              React.createElement("button", {className: "btn btn-success pull-right", onClick:  this.props.onClick}, "Start"), 
+              React.createElement("div", {className: "clearfix"})
+            )
+          )
+        )
       )
     );
   }
 });
 
 var Quiz = React.createClass({displayName: "Quiz",
+  getInitialState: function () {
+    return {
+      mode: "beforeStart",
+      points: 0
+    };
+  },
+  _onClick: function () {
+    this.setState({mode: "running"});
+  },
+  _onDone: function () {
+    this.setState({ mode: "done" });
+  },
+  render: function () {
+    if ( this.state.mode === "beforeStart" ) {
+      return (
+        React.createElement(QuizDescription, {title: this.props.src.title, author: this.props.src.author, 
+                    date: this.props.src.date, description: this.props.src.description, 
+                    onClick: this._onClick})
+      )
+    } else if ( this.state.mode === "running" ) {
+      return (
+        React.createElement(SectionList, {sections:  this.props.src.sections, onDone:  this._onDone})
+      )
+    } else {
+
+      return (
+        React.createElement(Summary, {points:  this.state.points})
+      )
+    }
+  }
+});
+
+var Summary = React.createClass({displayName: "Summary",
+
   render: function () {
     return (
-      React.createElement("div", {className: "quiz"}, 
-        React.createElement("h3", null, " ",  this.props.title, " "), 
-        React.createElement("span", null, " ",  this.props.author, " "), " ", React.createElement("span", null, " ",  this.props.date, " "), 
-        React.createElement("p", null, " ",  this.props.description, " "), 
-        React.createElement(SectionList, {sections:  QUIZDATA.sections})
+      React.createElement("div", {className: "row"}, 
+        React.createElement("div", {className: "col-md-6 col-md-offset-3"}, 
+          React.createElement("div", {className: "panel panel-default"}, 
+            React.createElement("div", {className: "panel-heading"}, 
+              "Summary"
+            ), 
+            React.createElement("div", {className: "panel-body"}, 
+              React.createElement("p", null, "Congratulations!"), 
+              React.createElement("p", null, "You achieved ", this.props.points, " !")
+            ), 
+            React.createElement("div", {className: "panel-footer"}, 
+              React.createElement("button", {className: "btn btn-success pull-right", onClick:  this.props.onClick}, "Finish"), 
+              React.createElement("div", {className: "clearfix"})
+            )
+          )
+        )
       )
     );
   }
 });
 
 var SectionList = React.createClass({displayName: "SectionList",
-  onNext: function () {
+  nextSection: function () {
     if ( this.state.index === this.props.sections.length - 1 ) {
-      console.log( "End of sections reached..." );
+      this.props.onDone();
       return;
     } else {
       this.setState({ index: this.state.index + 1 });
@@ -42,34 +112,47 @@ var SectionList = React.createClass({displayName: "SectionList",
     };
   },
   render: function () {
-    var index = this.state.index,
-        section = this.props.sections[index];
-
-
+    var sectionNodes = this.props.sections.map( function ( section ) {
+      return (
+        React.createElement(Section, {title:  section.title, description:  section.description, 
+                number:  section.number, questions:  section.questions, 
+                nextSection:  this.nextSection})
+      )
+    }, this);
 
     return (
       React.createElement("div", {className: "sectionlist"}, 
-        React.createElement(Section, {title:  section.title, description:  section.description, 
-                number:  section.number, questions:  section.questions, 
-                onNext:  this.onNext})
+         sectionNodes[ this.state.index] 
       )
     );
   }
 });
 
 var Section = React.createClass({displayName: "Section",
-  clickDone: function () {
-    console.log( this.props.title + " button done clicked")
-    // console.log( this.props.questions );
-    this.props.onNext();
+  getInitialState: function () {
+    return {
+      done: false
+    };
+  },
+  handleClick: function () {
+    if ( !this.state.done ) {
+      this.setState({ done: true });
+    } else {
+      this.setState({ done: false });
+      this.props.nextSection();
+    }
   },
   render: function () {
-    questionNodes = this.props.questions.map( function ( question ) {
+    //var _this = this;
+    var questionNodes = this.props.questions.map( function ( question ) {
       return (
         React.createElement(Question, {text:  question.text, points:  question.points, 
-                  type:  question.type, answers:  question.answers})
+                  type:  question.type, answers:  question.answers, 
+                  done:  this.state.done})
       );
-    });
+    }.bind(this));
+
+    var buttonText = !this.state.done ? "Done" : "Next";
 
     return (
       React.createElement("div", {className: "row"}, 
@@ -82,7 +165,9 @@ var Section = React.createClass({displayName: "Section",
              questionNodes 
             ), 
             React.createElement("div", {className: "panel-footer"}, 
-              React.createElement("button", {ref: "button", className: " btn btn-success pull-right", type: "button", onClick:  this.clickDone}, "Done"), 
+              React.createElement("button", {className: " btn btn-success pull-right", onClick:  this.handleClick}, 
+                 buttonText 
+              ), 
               /* div.clearfix is needed since the button won"t show up properly if ommited */
               React.createElement("div", {className: " clearfix"})
             )
@@ -94,43 +179,41 @@ var Section = React.createClass({displayName: "Section",
 });
 
 var Answer = React.createClass({displayName: "Answer",
-  getInitialState: function () {
-    return {
-      correct: false
+
+  getColor: function () {
+    var colorClass = "";
+
+    if ( this.props.color ) {
+      if ( this.props.isCorrect ) {
+        colorClass = "list-group-item-success";
+      } else if ( !this.props.isCorrect ) {
+        colorClass = "list-group-item-danger";
+      }
     }
-  },
-  getClassName: function () {
-    var colorClass = "",
-        checked;
 
 
-    return "answer list-group-item" + colorClass;
+    return "answer list-group-item " + colorClass;
   },
   render: function () {
     return (
-      React.createElement("div", {className: "answer list-group-item"}, 
+      React.createElement("div", {className:  this.getColor() }, 
         React.createElement("li", null, 
           this.props.text, 
-          React.createElement("input", {ref: "checked", className: "pull-right", type: "checkbox", name: "answer", value: ""})
+          React.createElement("input", {ref: "input", className: "pull-right", type: "checkbox"})
         )
       )
     );
   }
 });
 
-
+// Question is also a stateless component whihc only renders data
 var Question = React.createClass({displayName: "Question",
-  points: 0,
-  getAnswers: function () {
-    React.Children.map( this.props.children, function (child) {
-      console.log(child);
-    });
-  },
 
   render: function () {
+    var _this = this;
     var answerNodes = this.props.answers.map( function ( answer ) {
       return (
-        React.createElement(Answer, {text:  answer.text, isCorrect:  answer.isCorrect})
+        React.createElement(Answer, {text:  answer.text, isCorrect:  answer.isCorrect, color:  _this.props.done})
       )
     });
 
@@ -148,4 +231,5 @@ var Question = React.createClass({displayName: "Question",
   }
 });
 
+window.React = React;
 React.render(React.createElement(QuizBox, null), document.getElementById("content"));
