@@ -1,0 +1,30 @@
+{
+  "name": "quizler",
+  "version": "0.0.1",
+  "description": "A web app to create, share, and do quizes",
+  "repository": "https://github.com/creativeusername/quizler",
+  "main": "assets/js/app.js",
+  "dependencies": {
+    "flux": "^2.0.1",
+    "object-assign": "^2.0.0",
+    "react": "^0.13.2"
+  },
+  "devDependencies": {
+    "browserify": "^9.0.8",
+    "reactify": "^1.1.0",
+    "watchify": "^3.1.2"
+  },
+  "scripts": {
+    "start": "watchify -o src/js/bundle.js -v -d src/js/app.js",
+    "build": "browserify . -t"
+  },
+  "author": "Maximilian Kerp",
+  "browserify": {
+    "transform": [
+      "reactify"
+    ]
+  },
+  "jest": {
+    "rootDir": "./assets/js/"
+  }
+}
