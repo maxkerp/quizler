@@ -5,8 +5,16 @@ Quizler is part of college assignment/project and a work in progress and will he
 
 ## Installation
 
-At this point just clone the git repository and open up index.html in your favorite browser.
+Clone the repository into some place you like
+
+```git clone https://github.com/creativeusername/quizler ```
+
+Install the needed dependencies through npm and build the bundle.js file for the first time.
+
+```npm install
+   npm build
+```
 
 ## Usage
 
-So far there is not much functionality to quizler. I'm just about to add it.
+Start watching files for changes with `npm start`. A new bundle.js file will be build every time you save an update.
