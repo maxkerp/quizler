@@ -7,7 +7,7 @@ Quizler is part of college assignment/project and a work in progress and will he
 
 Clone the repository into some place you like
 
-`git clone https://github.com/creativeusername/quizler.git `
+`git clone https://github.com/creativeusername/quizler.git`
 
 Install the needed dependencies through npm and build the bundle.js file for the first time.
 
