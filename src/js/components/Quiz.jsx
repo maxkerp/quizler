@@ -12,6 +12,15 @@ var Quiz = React.createClass({
       points: 0
     };
   },
+
+  componentDidMount: function () {
+    QuizStore.addChangeListener(this._onChange);
+  },
+
+  componentWillUnmount: function () {
+    QuizStore.removeChangeListener(this._onChange);
+  },
+  
   _onClick: function () {
     this.setState({mode: "running"});
   },

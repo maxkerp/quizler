@@ -3,5 +3,5 @@
 module.exports = require('keymirror')({
   CREATE: null,
   UPDATE: null,
-  DESTROY: null, 
+  DESTROY: null
 });

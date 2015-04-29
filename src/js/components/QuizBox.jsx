@@ -4,16 +4,21 @@ var React = require('react');
 // Components
 var Quiz = require('./Quiz.jsx');
 
-// Store (just a mock for now)
-var QUIZDATA = require('../stores/QUIZDATA.js');
+// Store
+var QuizStore = require('../stores/QuizStore');
+var QuizActions = require('../actions/QuizActions');
+var QUIZ = require('../stores/QUIZDATA');
 
+QuizActions.create(QUIZ);
+
+var quiz = QuizStore.getFirst();
 
 var QuizBox = React.createClass({
 
   render: function () {
     return (
       <div className = "quizbox">
-        <Quiz src = { QUIZDATA }/>
+        <Quiz src = { quiz }/>
       </div>
     );
   }

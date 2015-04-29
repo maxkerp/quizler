@@ -1,8 +1,8 @@
 "use strict";
 
-var AppDispatcher = require('../dispatcher/AppDispacther');
+var AppDispatcher = require('../dispatcher/AppDispatcher');
 var EventEmitter = require('events').EventEmitter;
-var TodoConstants = require('../constants/TodoConstants');
+var QuizConstants = require('../constants/QuizConstants');
 var assign = require('object-assign');
 
 var CHANGE_EVENT = 'change';
@@ -15,17 +15,33 @@ var _quizes = {}; // a private collection of quizes
  */
  function create ( quiz ) {
    // timestamp instead of an real id
-   var id = Date.now();
-   _quizes[id] = assign( { id: id }, quiz );
+   if ( !quiz.id ) {
+     var id = Date.now();
+     _quizes[id] = assign( {}, quiz, { id: id } );
+   }
  }
 
  function destroy ( id ) {
    delete _quizes[id];
  }
 
+ function update( id, updates ) {
+   _quizes[id] = assign( {}, _quizes[id], updates );
+ }
+
  var QuizStore = assign( {}, EventEmitter.prototype, {
    getAll: function () {
      return _quizes;
+   },
+
+   getFirst: function () {
+     var first;
+     for (var key in _quizes) {
+       first = _quizes[key];
+       break;
+     }
+
+     return first;
    },
 
    emitChange: function () {
@@ -40,26 +56,35 @@ var _quizes = {}; // a private collection of quizes
      this.removeListener( CHANGE_EVENT, cb );
    },
 
-   dispactherIndex: AppDispacther.register( function ( payload ) {
-     var action = payload.action,
-         quiz;
+   dispactherIndex: AppDispatcher.register( function ( action ) {
+     var quiz;
 
      switch ( action.actionType ) {
-       case QuizConstants.QUIZ_CREATE:
 
+       case QuizConstants.CREATE:
          quiz = action.quiz;
-         if ( quiz !== undefiend && quiz !== null ) {
+         if ( quiz ) {
            create( quiz );
            QuizStore.emitChange();
          }
          break;
 
-       // TODO: Add more cases for other actionTypes like QUIZ_UPDATE, _DELETE
+       case QuizConstants.UPDATE:
+         quiz = action.quiz;
+         if ( quiz ) {
+           update( action.id, quiz );
+           QuizStore.emitChange();
+         }
+         break;
+
+       case QuizConstants.DELETE:
+         destroy( action.id );
+         QuizStore.emitChange();
+         break;
+
        default:
-
+         // no ops
      }
-
-     return true; // No errors. Needed by promise in Dispatcher.
    })
  });
 
