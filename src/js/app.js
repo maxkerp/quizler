@@ -1,5 +1,16 @@
+
 var React = require('react');
 
-var QuizBox = require('./components/QuizBox.jsx');
+// Components
+var Quiz = require('./components/Quiz.jsx');
 
-React.render(<QuizBox/>, document.getElementById("content"));
+// Store
+var QuizStore = require('./stores/QuizStore');
+var QuizActions = require('./actions/QuizActions');
+var QUIZ = require('./stores/QUIZDATA');
+
+QuizActions.create(QUIZ);
+
+var quiz = QuizStore.getFirst();
+
+React.render( <Quiz src={quiz}/>, document.getElementById('content'));

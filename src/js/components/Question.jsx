@@ -7,23 +7,25 @@
  var Question = React.createClass({
 
    render: function () {
-     var _this = this;
-     var answerNodes = this.props.answers.map( function ( answer ) {
+     var answerNodes = this.props.answers.map( function ( answer, index ) {
        return (
-         <Answer text = { answer.text } isCorrect = { answer.isCorrect } color = { _this.props.done } />
+         <Answer text = { answer.text } isCorrect = { answer.isCorrect }
+                color = { this.props.done } key = { index } ref = { index } />
        )
-     });
+     }, this );
+
 
      return (
-
-           <div className = "question panel panel-default">
-             <div className = "panel-body"> {this.props.text} <span className = "pull-right"> ( { this.points} / { this.props.points } points ) </span>
-             </div>
-             <ul className = "list-group list-unstyled">
-               {answerNodes}
-             </ul>
-           </div>
-
+       <div>
+         <div className = "panel-body">
+           <p>
+             {this.props.text}
+           </p>
+           <ul className = "list-group list-unstyled">
+             {answerNodes}
+           </ul>
+         </div>
+       </div>
      );
    }
  });

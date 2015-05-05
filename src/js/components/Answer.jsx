@@ -19,12 +19,10 @@ var Answer = React.createClass({
   },
   render: function () {
     return (
-      <div className = { this.getColor() }>
-        <li>
+        <li className = { this.getColor() } >
           {this.props.text}
           <input ref = "input" className = "pull-right" type = "checkbox"/>
         </li>
-      </div>
     );
   }
 });
