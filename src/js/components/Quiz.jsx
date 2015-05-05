@@ -1,7 +1,8 @@
 
 var React = require('react');
 
-var QuizStore = require('../stores/QuizStore');
+var StateStore = require('../stores/StateStore');
+var StateActions = require('../actions/StateActions');
 
 var QuizDescription = require('./QuizDescription.jsx');
 var Question = require('./Question.jsx');
@@ -18,11 +19,11 @@ var Quiz = React.createClass({
   },
 
   componentDidMount: function () {
-    QuizStore.addChangeListener(this._onDone);
+    StateStore.addChangeListener(this._onChange);
   },
 
   componentWillUnmount: function () {
-    QuizStore.removeChangeListener(this._onDone);
+    StateStore.removeChangeListener(this._onChange);
   },
 
   render: function () {
@@ -51,20 +52,36 @@ var Quiz = React.createClass({
   },
 
   _handleClick: function () {
-    if (!this.state.running) {
-      this.setState({
-        running: true
+    // if not running set running and go forward
+    // if running and not done set done
+    // if running and down set undone and go forward
+    if ( !this.state.running ) {
+      StateActions.update({
+        running: true,
+        index: this.state.index + 1
       });
     }
-    this.setState({ index: this.state.index + 1 });
-    console.log(this.state.index);'id'
+
+
+    if ( this.state.running && !this.state.done ) {
+      StateActions.update({ done: true });
+    }
+
+    if ( this.state.running && this.state.done ) {
+      StateActions.update({ done: false, index : this.state.index + 1 });
+    }
   },
 
-  _onDone: function () {
-    this.setState({ mode: "done" });
+  _onChange: function () {
+    var state =  StateStore.getState();
+    this.setState(state, function () {
+      console.log("[SetState in onChange]: done..");
+    });
   },
 
   _activeBodyNode: function () {
+    // missing one question because the index is one of due to the
+    // 'QuizDescription' \/
     if ( !this.state.running ) {
       return (
         <div>
@@ -80,9 +97,9 @@ var Quiz = React.createClass({
       return (
         <Question text = {question.text} type = {question.type}
                   points = {question.points} answers = {question.answers}
-                  key = {index} next = {this._handleClick } />
+                  key = {index} />
       );
-    }, this );
+    });
 
     return bodyNodes[ this.state.index ];
   },
