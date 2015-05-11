@@ -14,6 +14,7 @@ var Quiz = React.createClass({
       index: 0,
       done: false,
       running: false,
+      finished: false,
       points: 0
     };
   },
@@ -73,40 +74,65 @@ var Quiz = React.createClass({
   },
 
   _onChange: function () {
-    var state =  StateStore.getState();
-    this.setState(state, function () {
-      console.log("[SetState in onChange]: done..");
-    });
+    this.setState(StateStore.getState());
   },
 
   _activeBodyNode: function () {
-    // missing one question because the index is one of due to the
-    // 'QuizDescription' \/
-    if ( !this.state.running ) {
-      return (
-        <div>
-          <div className = "panel-body">
-            <p> <span> {this.props.src.author}</span> <span> {this.props.src.date}</span> </p>
-            <p> {this.props.src.desc } </p>
-          </div>
+    var questionNodes = [];
+
+    questionNodes.push(
+      <div>
+        <div className = "panel-body">
+          <p> <span> {this.props.src.author}</span> <span> {this.props.src.date}</span> </p>
+          <p> {this.props.src.desc } </p>
         </div>
-      );
-    }
+      </div>
+    );
 
-    var bodyNodes = this.props.src.questions.map( function( question, index ){
+    questionNodes = questionNodes.concat(this.props.src.questions.map( function( question, index ){
+      var answerNodes = question.answers.map( function (answer, i) {
+        return (
+          <li className = {this._getColor()} key = {i} >
+            {answer.text}
+            <input ref = "input" className = "pull-right" type = "checkbox" />
+          </li>
+        );
+      }, this );
+
       return (
-        <Question text = {question.text} type = {question.type}
-                  points = {question.points} answers = {question.answers}
-                  key = {index} />
+          <div className = "panel-body" key = { index }>
+            <p>
+              {question.text}
+            </p>
+            <ul className = "list-group list-unstyled">
+              { answerNodes }
+            </ul>
+          </div>
       );
-    });
+    }, this ));
 
-    return bodyNodes[ this.state.index ];
+    return questionNodes[ this.state.index ];
   },
 
   _btnText: function () {
     return !this.state.done ? "Done" : "Next";
-  }
+  },
+
+  _getColor: function () {
+    
+    var colorClass = "";
+
+    if ( this.props.color ) {
+      if ( this.props.isCorrect ) {
+        colorClass = "list-group-item-success";
+      } else if ( !this.props.isCorrect ) {
+        colorClass = "list-group-item-danger";
+      }
+    }
+
+
+    return " list-group-item " + colorClass;
+  },
 });
 
 module.exports = Quiz;

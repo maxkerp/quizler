@@ -1,10 +1,18 @@
 
  var React = require('react');
-
+ var StateStore = require('../stores/StateStore');
  var Answer = require('./Answer.jsx');
 
  // Question is also a stateless component whihc only renders data
  var Question = React.createClass({
+
+   componentWillMount: function () {
+     StateStore.addChangeListener(this._onChange);
+   },
+
+   componentWillUnmount: function () {
+     StateStore.removeChangelistener(this._onChange);
+   },
 
    render: function () {
      var answerNodes = this.props.answers.map( function ( answer, index ) {
