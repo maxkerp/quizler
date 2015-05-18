@@ -23,6 +23,7 @@ var Quiz = React.createClass({
   render: function () {
     console.log('[METHOD]: render()');
 
+    // before running show Quiz description
     if ( !this.state.running ) {
       return (
         <div className = "row">
@@ -35,6 +36,33 @@ var Quiz = React.createClass({
               <div className = "panel-body">
                 <p>
                   { this.props.src.desc }
+                </p>
+              </div>
+              <div className = "panel-footer">
+                <button className = "btn btn-success pull-right" onClick = { this._handleClick }>
+                  { this._btnText() }
+                </button>
+                <div className = "clearfix"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // show summary if finished
+    if ( this.state.finished ) {
+      return (
+        <div className = "row">
+          <div className = "col-md-6 col-md-offset-3">
+            <div className = "panel panel-default">
+              <div className = "panel-heading">
+                <span>{ this.props.src.title }</span>
+                <span className = "pull-right"> {this.state.points}</span>
+              </div>
+              <div className = "panel-body">
+                <p>
+                  Congratulations you made { this.state.points } out of { this.props.src.maxPoints } Points!
                 </p>
               </div>
               <div className = "panel-footer">
@@ -118,6 +146,7 @@ var Quiz = React.createClass({
     var userChoices,
         correctChoices,
         equal,
+        newPoints = this.props.src.questions[this.state.index].points,
         i = 0;
 
     userChoices = this.state.answers;
@@ -151,7 +180,7 @@ var Quiz = React.createClass({
     console.log('equal? : ' + equal);
     if ( equal ) {
       this.setState({
-        points: this.state.points + 1,
+        points: this.state.points + newPoints,
         done: true,
       });
     } else {
@@ -174,6 +203,11 @@ var Quiz = React.createClass({
       });
     }
 
+    if ( this.state.finished ) {
+      console.log('[MODE]: finished..');
+      return;
+    }
+
     // entering this state when user answers the question and wants feedback
     if ( this.state.running && !this.state.done ) {
       this._checkAnswers();
@@ -181,6 +215,13 @@ var Quiz = React.createClass({
     }
 
     if ( this.state.running && this.state.done ) {
+      // check if last answer, if so return
+      if ( (this.state.index + 1) === this.props.src.questions.length ) {
+        this.setState({
+          finished: true
+        });
+        return;
+      }
       resetAnswers = this.props.src
         .questions[this.state.index + 1]
         .answers
@@ -194,6 +235,7 @@ var Quiz = React.createClass({
         answers: resetAnswers
       });
     }
+
   },
 
 

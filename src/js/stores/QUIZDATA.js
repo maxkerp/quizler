@@ -8,6 +8,7 @@ module.exports = {
   "feedback": "none",
   "allowCheck": false,
   "tellSolution": false,
+  "maxPoints": 10,
   "questions": [
         {
           "text": "What is React?",
@@ -59,11 +60,5 @@ module.exports = {
             { "text": "React.js is a utillity library", "correct": false},
           ]
         },
-        {
-          "text": "React.js offers a way to handle data operations.",
-          "points": 2,
-          "type": "trueFalse",
-          "answers": []
-        }
       ]
 };
