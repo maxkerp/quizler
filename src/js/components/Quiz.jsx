@@ -1,35 +1,68 @@
 
 var React = require('react');
 
-var StateStore = require('../stores/StateStore');
-var StateActions = require('../actions/StateActions');
-
-var QuizDescription = require('./QuizDescription.jsx');
-var Question = require('./Question.jsx');
-var Summary = require('./Summary.jsx');
-
 var Quiz = React.createClass({
   getInitialState: function () {
+    var _answers = []
+        ,question = this.props.src.questions[0];
+
+    question.answers.forEach( function ( _, index) {
+      _answers[index] = null;
+    });
+
     return {
       index: 0,
+      points: 0,
+      answers: _answers,
       done: false,
       running: false,
-      finished: false,
-      points: 0
+      finished: false
     };
   },
 
-  componentDidMount: function () {
-    StateStore.addChangeListener(this._onChange);
-  },
-
-  componentWillUnmount: function () {
-    StateStore.removeChangeListener(this._onChange);
-  },
-
   render: function () {
+    console.log('[METHOD]: render()');
 
-    var activeBodyNode = this._activeBodyNode();
+    if ( !this.state.running ) {
+      return (
+        <div className = "row">
+          <div className = "col-md-6 col-md-offset-3">
+            <div className = "panel panel-default">
+              <div className = "panel-heading">
+                <span>{ this.props.src.title }</span>
+                <span className = "pull-right"> {this.state.points}</span>
+              </div>
+              <div className = "panel-body">
+                <p>
+                  { this.props.src.desc }
+                </p>
+              </div>
+              <div className = "panel-footer">
+                <button className = "btn btn-success pull-right" onClick = { this._handleClick }>
+                  { this._btnText() }
+                </button>
+                <div className = "clearfix"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    var self = this;
+
+    var question = this.props.src.questions[this.state.index];
+
+    var answerNodes = question.answers.map( function (answer, i) {
+      return (
+        <li className = {this._getColor(i)} key = {i} >
+          {answer.text}
+          <input className = "pull-right" type = "checkbox"
+                 onChange = { self._selectAnswer.bind(null, i) }
+          />
+        </li>
+      );hoice
+    }, this );
 
     return (
       <div className = "row">
@@ -39,7 +72,14 @@ var Quiz = React.createClass({
               <span>{ this.props.src.title }</span>
               <span className = "pull-right"> {this.state.points}</span>
             </div>
-            { activeBodyNode }
+            <div className = "panel-body">
+              <p>
+                { question.text }
+              </p>
+              <ul className = "list-group list-unstyled" key = { this.state.index}>
+                { answerNodes }
+              </ul>
+            </div>
             <div className = "panel-footer">
               <button className = "btn btn-success pull-right" onClick = { this._handleClick }>
                 { this._btnText() }
@@ -52,84 +92,147 @@ var Quiz = React.createClass({
     );
   },
 
+  _selectAnswer: function(index, e) {
+    if ( this.state.done ) {
+      e.preventDefault();
+      return;
+    }
+
+    var _answers = this.state.answers;
+    if ( _answers[index] === null ) {
+      _answers[index] = true;
+    } else {
+      _answers[index] = !(_answers[index]);
+    }
+
+    this.setState({
+      answers: _answers
+    });
+
+    console.log('answer[' + index + '] = ' + this.state.answers[index]);
+
+  },
+
+  _checkAnswers: function () {
+    console.log('[METHOD]: _checkAnswers');
+    var userChoices,
+        correctChoices,
+        equal,
+        i = 0;
+
+    userChoices = this.state.answers;
+    correctChoices = this.props.src
+      .questions[this.state.index]
+      .answers
+      .map( function (answer) {
+        return answer.correct;
+      });
+
+    var equal = true;
+    for ( var i = 0; i < userChoices.length; i++ ) {
+      if (userChoices[i] === null) {
+        // userChoice is null, treating null as false -> userChoice = false
+        // WHY IS NULL NOT FALSY!! Gosh -.-
+        if ( correctChoices[i] ) {
+          equal = false;
+          break;
+        }
+      } else {
+        // userChoice is not null, do the logical
+        if ( correctChoices[i] !== userChoices[i] ) {
+          equal = false;
+          break;
+        }
+      }
+    }
+
+    console.log('userChoices: ' + userChoices);
+    console.log('correctChoices: ' + correctChoices);
+    console.log('equal? : ' + equal);
+    if ( equal ) {
+      this.setState({
+        points: this.state.points + 1,
+        done: true,
+      });
+    } else {
+      this.setState({
+        done: true
+      });
+    }
+  },
+
   _handleClick: function () {
+    var resetAnswers;
+
+
     // if not running set running and go forward
     // if running and not done set done
     // if running and down set undone and go forward
     if ( !this.state.running ) {
-      StateActions.update({
+      this.setState({
         running: true,
-        index: this.state.index + 1
       });
     }
 
-
+    // entering this state when user answers the question and wants feedback
     if ( this.state.running && !this.state.done ) {
-      StateActions.update({ done: true });
+      this._checkAnswers();
+
     }
 
     if ( this.state.running && this.state.done ) {
-      StateActions.update({ done: false, index : this.state.index + 1 });
+      resetAnswers = this.props.src
+        .questions[this.state.index + 1]
+        .answers
+        .map( function () {
+          return null;
+        });
+
+      this.setState({
+        done: false,
+        index : this.state.index + 1,
+        answers: resetAnswers
+      });
     }
   },
 
-  _onChange: function () {
-    this.setState(StateStore.getState());
-  },
-
-  _activeBodyNode: function () {
-    var questionNodes = [];
-
-    questionNodes.push(
-      <div>
-        <div className = "panel-body">
-          <p> <span> {this.props.src.author}</span> <span> {this.props.src.date}</span> </p>
-          <p> {this.props.src.desc } </p>
-        </div>
-      </div>
-    );
-
-    questionNodes = questionNodes.concat(this.props.src.questions.map( function( question, index ){
-      var answerNodes = question.answers.map( function (answer, i) {
-        return (
-          <li className = {this._getColor()} key = {i} >
-            {answer.text}
-            <input ref = "input" className = "pull-right" type = "checkbox" />
-          </li>
-        );
-      }, this );
-
-      return (
-          <div className = "panel-body" key = { index }>
-            <p>
-              {question.text}
-            </p>
-            <ul className = "list-group list-unstyled">
-              { answerNodes }
-            </ul>
-          </div>
-      );
-    }, this ));
-
-    return questionNodes[ this.state.index ];
-  },
 
   _btnText: function () {
     return !this.state.done ? "Done" : "Next";
   },
 
-  _getColor: function () {
-    
-    var colorClass = "";
+  _getColor: function (i) {
+    var userChoice,
+        correctChoice,
+        colorClass = "";
 
-    if ( this.props.color ) {
-      if ( this.props.isCorrect ) {
-        colorClass = "list-group-item-success";
-      } else if ( !this.props.isCorrect ) {
-        colorClass = "list-group-item-danger";
+    if ( this.state.done ) {
+
+      userChoice = this.state.answers[i];
+      correctChoice = this.props.src
+        .questions[this.state.index]
+        .answers[i]
+        .correct;
+
+      console.log('userChoice: ' + userChoice,
+                  'correctChoice: ' + correctChoice);
+
+      if (userChoice === null) {
+        // userChoice is null, treating null as false -> userChoice = false
+        // WHY IS NULL NOT FALSY!! Gosh -.-
+        if ( correctChoice ) {
+          colorClass = "list-group-item-danger";
+        }
+      } else {
+        // userChoice is not null, do the logical
+        if ( correctChoice !== userChoice) {
+          colorClass = "list-group-item-danger";
+        } else {
+          colorClass = "list-group-item-success";
+        }
       }
-    }
 
+    }
 
     return " list-group-item " + colorClass;
   },

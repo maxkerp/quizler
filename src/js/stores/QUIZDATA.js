@@ -14,9 +14,9 @@ module.exports = {
           "points": 2,
           "type": "multiChoice",
           "answers": [
-            { "text": "A JavaScript library", "isCorrect": true},
-            { "text": "CSS preprocessor", "isCorrect": false},
-            { "text": "Language that compiles to coffeeScript", "isCorrect": false},
+            { "text": "A JavaScript library", "correct": true},
+            { "text": "CSS preprocessor", "correct": false},
+            { "text": "Language that compiles to coffeeScript", "correct": false},
           ]
         },
         {
@@ -24,9 +24,9 @@ module.exports = {
           "points": 2,
           "type": "multiChoice",
           "answers": [
-            { "text": "Google", "isCorrect": false},
-            { "text": "Twitter", "isCorrect": false},
-            { "text": "Facebook", "isCorrect": true},
+            { "text": "Google", "correct": false},
+            { "text": "Twitter", "correct": false},
+            { "text": "Facebook", "correct": true},
           ]
         },
         {
@@ -34,9 +34,9 @@ module.exports = {
           "points": 2,
           "type": "multiChoice",
           "answers": [
-            { "text": "Building web apps", "isCorrect": true},
-            { "text": "Adding variables to CSS", "isCorrect": false},
-            { "text": "Making websites cloud-ready", "isCorrect": false},
+            { "text": "Building web apps", "correct": true},
+            { "text": "Adding variables to CSS", "correct": false},
+            { "text": "Making websites cloud-ready", "correct": false},
           ]
         },
         {
@@ -44,9 +44,9 @@ module.exports = {
           "points": 2,
           "type": "multiChoice",
           "answers": [
-            { "text": "An extended version of JavaScript", "isCorrect": true},
-            { "text": "A new format to store date on the web", "isCorrect": false},
-            { "text": "A JavaScript conference held in sillicon valley", "isCorrect": false},
+            { "text": "An extended version of JavaScript", "correct": true},
+            { "text": "A new format to store date on the web", "correct": false},
+            { "text": "A JavaScript conference held in sillicon valley", "correct": false},
           ]
         },
         {
@@ -54,9 +54,9 @@ module.exports = {
           "points": 2,
           "type": "multiChoice",
           "answers": [
-            { "text": "React.js is the V in MVC", "isCorrect": true},
-            { "text": "React.js is a SPA-Framework", "isCorrect": false},
-            { "text": "React.js is a utillity library", "isCorrect": false},
+            { "text": "React.js is the V in MVC", "correct": true},
+            { "text": "React.js is a SPA-Framework", "correct": false},
+            { "text": "React.js is a utillity library", "correct": false},
           ]
         },
         {
