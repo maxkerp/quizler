@@ -4,6 +4,7 @@ var React = require('react');
 var ReactInput = React.createClass({
 
   propTypes: {
+    value: React.PropTypes.string,
     name: React.PropTypes.string.isRequired,
     type: React.PropTypes.string.isRequired,
     placeholder: React.PropTypes.string.isRequired,
@@ -11,11 +12,12 @@ var ReactInput = React.createClass({
   },
 
   getInitialState: function () {
-    var placeholder = this.props.placeholder ? this.props.placeholder : "placeholder";
+    var value = this.props.value ? this.props.value : this.props.placeholder;
+
     return {
       edit: false,
-      placeholder: placeholder,
-      value: placeholder
+      placeholder: this.props.placeholder,
+      value: value
     };
   },
 
@@ -91,13 +93,13 @@ var ReactInput = React.createClass({
     } else if ( e.key === 'Enter') {
       value = e.target.value.trim();
 
-      if ( value === "" ) {
+      if ( !value ) {
 
         // If value empty, cancel and use previous value
         this.setState({
           edit: false
         });
-        
+
       } else {
 
         // Value has changed, set new value and execute callback
