@@ -1,12 +1,30 @@
 
 var React = require('react');
 
+var ReactInput = require('./ReactInput.jsx');
+
+// Private quiz object
+var _quiz = {
+  author: "",
+  title: "",
+  desc: "",
+  questions: [
+    // text:string, points:integer, type:string, answers:Array[object]
+  ]
+};
+
 var QuizFactory = React.createClass({
 
   getInitialState: function () {
+
+    _quiz.questions[0] = {
+      text: "",
+      points: 0,
+      text: ""
+    }
+
     return {
       index: 0,
-      quiz: {}
     };
   },
 
@@ -15,11 +33,15 @@ var QuizFactory = React.createClass({
     return (
       <div className = "panel panel-default" >
         <div className = "panel-heading">
-          <input type = "text" placeholder = "Quiz Title" ref = "quizTitle"
-            onKeyDown = { this._titleInput}/>
+          <ReactInput type="text" name="quizTitle" placeholder="Quiz Title"
+                      callBack={ this._onTitleChange }
+          />
         </div>
         <div className = "panel-body">
-          // questions and Answers or quizDesc
+          <ReactInput type="textarea" name="question"
+                      placeholder="Enter your Question here."
+                      callBack={ this._onQuestionChange }
+          />
         </div>
         <div className = "panel-footer">
           <button className = "btn btn-default">Prev</button>
@@ -30,20 +52,19 @@ var QuizFactory = React.createClass({
     );
   },
 
-  _titleInput: function (e) {
-    var input, quiz;
-    if (e.key === 'Enter') {
-      input = e.target.value.trim();
-      quiz = this.state.quiz;
-      quiz.title = input;
+  _onTitleChange: function ( val ) {
+    console.log('[METHOD]: onChange() in QuizFactory: ', val);
 
-      this.setState({
-        quiz: quiz
-      });
-
-      console.log('[QUIZ]:', quiz);
-    }
+    _quiz.title = val;
+    console.log(_quiz);
   },
+
+  _onQuestionChange: function ( val ) {
+
+    _quiz.questions[this.state.index].text = val;
+
+  }
+
 });
 
 module.exports = QuizFactory;
