@@ -21,6 +21,10 @@ var ReactInput = React.createClass({
     };
   },
 
+  componentDidMount: function () {
+    console.log("Refs are: ", this.refs);
+  },
+
   render: function () {
     console.log('[METHOD]: render()');
     // Not in edit mode!
@@ -30,9 +34,9 @@ var ReactInput = React.createClass({
       if ( this.props.type === "text") {
 
         return (
-          <p className="reactInputTag" onDoubleClick={this._handleDbClick}>
+          <span className="reactInputTag" onDoubleClick={this._handleDbClick}>
             { this.state.value }
-          </p>
+          </span>
         );
 
       } else if ( this.props.type === "textarea") {
@@ -49,7 +53,8 @@ var ReactInput = React.createClass({
       if ( this.props.type === "text" ) {
 
         return (
-          <input type="text"
+          <input ref="refText"
+                 type="text"
                  placeholder = { this.state.value }
                  onKeyDown={ this._handleKeyDown }
                  className="reactInputInput"
@@ -61,6 +66,7 @@ var ReactInput = React.createClass({
 
         return (
           <textarea
+            ref="refTextarea"
             placeholder={ this.state.value }
             onKeyDown={ this._handleKeyDown }
             className="reactInputInput"
@@ -78,6 +84,8 @@ var ReactInput = React.createClass({
     this.setState({
       edit: true
     });
+    //TODO: set value of ReactInput to its last value
+    // refs apparently don't work -.-
   },
 
   _handleKeyDown: function (e) {
@@ -95,9 +103,10 @@ var ReactInput = React.createClass({
 
       if ( !value ) {
 
-        // If value empty, cancel and use previous value
+        // If value empty, cancel and use placeholder
         this.setState({
-          edit: false
+          value: this.props.placeholder,
+          edit: false,
         });
 
       } else {
