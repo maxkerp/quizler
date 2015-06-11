@@ -21,7 +21,6 @@ var Quiz = React.createClass({
   },
 
   render: function () {
-    console.log('[METHOD]: render()');
 
     // before running show Quiz description
     if ( !this.state.running ) {

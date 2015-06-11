@@ -3,41 +3,62 @@ var React = require('react');
 
 var ReactInput = require('./ReactInput.jsx');
 
+// Quiz and Answer act as the Stores in the flux architecture pattern
+var Quiz = require('../helpers/Quiz.js');
+var Question = require('../helpers/Question.js');
+var Answer = require('../helpers/Answer.js');
+
+
+
 var QuizFactory = React.createClass({
+
+  componentDidMount: function () {
+    Quiz.addChangeListener(this._onChange);
+  },
+
+  componentWillUnmount: function () {
+    Quiz.removeChangeListener(this._onChange);
+  },
+
+  _onChange: function () {
+    this.setState({
+      quiz: Quiz
+    });
+  },
 
   getInitialState: function () {
 
+    Quiz.initialize();
+
     return {
       index: 0,
-      quizTitle: "",
-      author: "",
-      desc: "",
-      questions: [
-        {
-          text: "",
-          points: 0,
-          type: "",
-          answers: []
-        }
-      ]
+      quiz: Quiz
     };
   },
 
   render: function () {
 
-    var answerNodes = this.state.questions[this.state.index]
-        .answers
+    console.log(Quiz);
+
+    var answerNodes = this.state.quiz.getQuestion(this.state.index)
+        .getAnswers()
         .map( function (answer, index) {
-          console.log(answer);
           return (
-            <li className="list-group-item" key={ index }>
+            <li className="list-group-item" key={ answer.text }>
               <span>
                 <ReactInput type="text" name={ "answer" + index }
                           placeholder="answer"
                           value={ answer.text }
-                          callBack={ this._onAnswerChange }
+                          callBack={ this._onAnswerChange.bind(this, index) }
                 />
-                <input type="checkbox" className="pull-right" checked={ answer.correct }/>
+                <input type="checkbox" className="pull-right" checked={ answer.correct }
+                       onChange={this._onCheckedChange.bind(this, index)}
+                  />
+                <button type="button" className="btn btn-default pull-right"
+                        onClick={ this._onRemoveAnswer.bind(this, index) }
+                  >
+                  x
+                </button>
                 <div className="clearfix"></div>
               </span>
             </li>
@@ -45,20 +66,21 @@ var QuizFactory = React.createClass({
 
     }, this);
 
-
+    var questionText = this.state.quiz.getQuestion(this.state.index)
+                                      .getText();
 
     return (
       <div className = "panel panel-default" >
         <div className = "panel-heading">
           <ReactInput type="text" name="quizTitle" placeholder="Quiz Title"
-                      value={ this.state.quizTitle }
+                      value={ this.state.quiz.title }
                       callBack={ this._onTitleChange }
           />
         </div>
-        <div className = "panel-body" key={ this.state.index }>
+        <div className = "panel-body" key={ "question" + this.state.index }>
           <ReactInput type="textarea" name="question"
                       placeholder="Enter your Question here."
-                      value={ this.state.questions[this.state.index].text }
+                      value={ questionText }
                       callBack={ this._onQuestionChange }
           />
           <ul className="list-group list-unstyled">
@@ -66,7 +88,7 @@ var QuizFactory = React.createClass({
           </ul>
           <hr/>
           <span>
-            <input type="text" name="answer" placeholder="Next Answer" size="60"
+            <input type="text" name="answer" ref="nextanswer" placeholder="Next Answer" size="60"
                    onKeyPress={ this._onNextAnswer }/>
             <span className="pull-right">
               <input type="checkbox" ref="correct">Correct:</input>
@@ -74,55 +96,73 @@ var QuizFactory = React.createClass({
           </span>
         </div>
         <div className = "panel-footer">
-          <button className = "btn btn-default">Prev</button>
-          <button className = "btn btn-default pull-right">Next</button>
+          <button className = "btn btn-default" onClick={this._onPrev}>Prev</button>
+          <button className = "btn btn-default pull-right" onClick={this._onNext}>Next</button>
           <div className = "clearfix"></div>
         </div>
       </div>
     );
+
   },
 
   _onTitleChange: function ( val ) {
-    console.log('[METHOD]: onChange() in QuizFactory: ', val);
-
-    this.setState({
-      title: val
-    });
+    Quiz.setTitle(val);
   },
 
   _onQuestionChange: function ( val ) {
-    var questions = this.state.questions;
-    questions[this.state.index].text = val;
-
-
-    this.setState({
-      questions: questions
-    });
+    Quiz.getQuestion(this.state.index).setText(val);
+    Quiz.emitChange();
   },
 
   _onNextAnswer: function ( e ) {
-    var answerText, answerCorrect,
-        answers, questions;
+    var answer;
 
     if ( e.key === "Enter" ) {
-      answerText = e.target.value.trim();
-      answerCorrect = React.findDOMNode(this.refs.correct).checked;
+      answer = new Answer();
 
-      answers = this.state.questions[this.state.index].answers;
-      answers.push({text: answerText, correct: answerCorrect});
+      answer.setText(e.target.value.trim())
+            .setCorrect(React.findDOMNode(this.refs.correct).checked);
 
-      questions = this.state.questions;
-      questions[this.state.index].answers = answers;
+      Quiz.getQuestion(this.state.index).appendAnswer(answer);
+      Quiz.emitChange();
 
-      this.setState({
-        questions: questions
-      });
+      React.findDOMNode(this.refs.nextanswer).value = "";
+
     }
 
   },
 
-  _onAnswerChange: function () {
+  _onAnswerChange: function ( index, val) {
     console.log("[METHOD]: onAnswerChange()");
+    Quiz.getQuestion(this.state.index).getAnswer(index).setText(val);
+    Quiz.emitChange;
+  },
+
+  _onCheckedChange: function (index) {
+    Quiz.getQuestion(this.state.index).getAnswer(index).toggleCorrect();
+    Quiz.emitChange();
+  },
+
+  _onRemoveAnswer: function (ansIndex) {
+    console.log("removeAnswer");
+    Quiz.getQuestion(this.state.index).removeAnswer(ansIndex);
+    Quiz.emitChange();
+  },
+
+  _onPrev: function () {
+    this.setState({
+      index: this.state.index - 1
+    });
+  },
+
+  _onNext: function () {
+    if (Quiz.getQuestion(this.state.index + 1) === undefined ) {
+      Quiz.appendQuestion( new Question());
+    }
+
+    this.setState({
+      index: this.state.index + 1
+    });
   },
 
 });

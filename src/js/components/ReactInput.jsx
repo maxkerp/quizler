@@ -21,12 +21,17 @@ var ReactInput = React.createClass({
     };
   },
 
-  componentDidMount: function () {
-    console.log("Refs are: ", this.refs);
+  shouldComponentUpdate: function (nextProps, nextState) {
+
+    // only updtae the component if state or props have changed
+    if (nextState !== this.state) {
+      return true;
+    } else {
+     return (nextProps.id !== this.props.id);
+    }
   },
 
   render: function () {
-    console.log('[METHOD]: render()');
     // Not in edit mode!
     if ( !this.state.edit ) {
 
@@ -34,7 +39,7 @@ var ReactInput = React.createClass({
       if ( this.props.type === "text") {
 
         return (
-          <span className="reactInputTag" onDoubleClick={this._handleDbClick}>
+          <span className="reactInputTag" onClick={this._handleClick}>
             { this.state.value }
           </span>
         );
@@ -42,7 +47,7 @@ var ReactInput = React.createClass({
       } else if ( this.props.type === "textarea") {
 
         return (
-          <p className="reactInputTag" onDoubleClick={this._handleDbClick}>
+          <p className="reactInputTag" onClick={this._handleClick}>
             { this.state.value }
           </p>
         );
@@ -78,9 +83,8 @@ var ReactInput = React.createClass({
     }
   },
 
-  _handleDbClick: function (e) {
+  _handleClick: function (e) {
     e.preventDefault();
-    console.log("[METHOD]: _handleDbClick()");
     this.setState({
       edit: true
     });
